@@ -17,5 +17,6 @@ $ pip install Flask
 Launch app
 
 ```sh
+flask run
 flask --app app run
 ```

@@ -1,9 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/htmx.org@1.5.0"></script>
 </head>
 <body>
 <h1>Draw OCR</h1>
 <h2>Draw bounding boxes on image and run OCR</h2>
+
+<div class='some-page-wrapper'>
+    <div class='row'>
+      <div class='column'>
+        <div class='blue-column'>
+          Some Text in Column One
+          <h3 for="paste-area">Click in the box below and paste an image:</h3>
+          <button hx-post="/ocr"
+                hx-trigger="click"
+                hx-target="#ocr-text"
+                hx-swap="afterend"
+                hx-vals='js:{"image": document.querySelector("#base64-output").value}'
+            >
+                Run OCR!
+            </button>
+            <div id="paste-area" style="max-width:75%; min-height: 50px; max-height: 100%; border:1px solid #333;" 
+                contenteditable="true" 
+                onpaste="pasteImage(event)">
+            </div>
+            <textarea id="base64-output" style="width:75%; height: 100%; border:1px solid black;">
+            </textarea>
+            
+        </div>
+      </div>
+      <div class='column'>
+        <div class='green-column'>
+          Some Text in Column Two
+          <p id="ocr-text">OCR response will be added here</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+</section>
+
+<script>
+    function pasteImage(e) {
+        e.preventDefault();
+        let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (let index in items) {
+            let item = items[index];
+            if (item.kind === 'file') {
+                let blob = item.getAsFile();
+                let reader = new FileReader();
+                reader.onload = function(event){
+                    let img = document.createElement("img");
+                    img.src = event.target.result;
+                    img.style.maxWidth = "400px";
+                    document.getElementById('paste-area').appendChild(img);
+
+                    // Display the base64 string in the textarea
+                    document.getElementById('base64-output').value = event.target.result;
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+        // Reset the content of the contenteditable area
+        document.getElementById('paste-area').innerHTML = "";
+    }
+</script> 
 </body>
 </html>
